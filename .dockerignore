@@ -1,0 +1,43 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.Python
+.pytest_cache
+.coverage
+htmlcov/
+
+# Virtual environments
+.venv
+.venv2
+venv/
+
+# Development files
+.env
+*.db
+requirements-local.txt
+requirements-dev.txt
+requirements-core.txt
+
+# Testing
+test_*.py
+tests/
+
+# Documentation
+README.md
+*.md
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
