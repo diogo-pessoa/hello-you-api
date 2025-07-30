@@ -1,5 +1,6 @@
-import os
 import logging
+import os
+
 from dotenv import load_dotenv
 
 # Load environment variables from .env file
@@ -19,10 +20,10 @@ class Config:
 
     @staticmethod
     def init_logging(app):
-        """Initialize structured logging for Elastic"""
+        """Initialize structured logging"""
         log_level = getattr(logging, Config.LOG_LEVEL)
 
-        # Create formatter for structured logs (JSON-like for Elastic)
+        # Create formatter for structured logs (JSON-like)
         formatter = logging.Formatter(
             '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
@@ -39,7 +40,7 @@ class Config:
         console_handler.setFormatter(formatter)
         app.logger.addHandler(console_handler)
 
-        # Set propagate to False to avoid duplicate logs
+        #  Avoid duplicate
         app.logger.propagate = False
 
         app.logger.info(f"Logging initialized at {Config.LOG_LEVEL} level")

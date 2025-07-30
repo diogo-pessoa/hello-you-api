@@ -1,8 +1,10 @@
-import pytest
 import json
 from datetime import date, timedelta
+
+import pytest
+
 from app import app
-from models import db, User
+from models import db
 
 
 @pytest.fixture

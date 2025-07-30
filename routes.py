@@ -1,4 +1,5 @@
 from flask import Blueprint, request, jsonify, current_app
+
 from models import db, User
 from validators import is_valid_username, is_valid_date, days_until_birthday
 
