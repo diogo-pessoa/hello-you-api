@@ -2,3 +2,5 @@
 Flask==2.3.3
 Flask-SQLAlchemy==3.0.5
 python-dotenv==1.0.0
+
+prometheus-flask-exporter==0.23.0
