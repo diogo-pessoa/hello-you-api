@@ -1,0 +1,29 @@
+# terraform.tfvars.example
+# Copy this to terraform.tfvars and fill in your values
+
+app_name     = "hello-you-api"
+environment  = "dev"
+aws_region   = "eu-north-1"
+
+# Optional: specify availability zones (will use first 2 AZs if not specified)
+# availability_zones = ["eu-north-1a", "eu-north-1b"]
+
+# Optional: customize VPC CIDR
+# vpc_cidr = "10.0.0.0/16"
+
+# Database credentials
+db_username = "hello_user"
+db_password = "your-secure-db-password-here"
+
+# Flask secret key
+flask_secret_key = "your-super-secret-flask-key-here"
+
+# Optional: ECS configuration
+# ecs_cluster_name = "my-custom-cluster-name"
+# desired_count = 2
+# task_cpu = 256
+# task_memory = 512
+
+# Optional: Container configuration
+# container_image = "ghcr.io/diogo-pessoa/hello-you-api:latest"
+# container_port = 5000
