@@ -11,3 +11,7 @@ coverage==7.3.2
 # Code quality and formatting
 flake8==6.1.0
 black==23.9.1
+pylint==3.0.2
+
+# Security analysis
+bandit[toml]==1.7.5
