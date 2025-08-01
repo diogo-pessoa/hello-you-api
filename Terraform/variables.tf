@@ -55,7 +55,7 @@ variable "ecs_cluster_name" {
 variable "container_image" {
   description = "Docker image for the application"
   type        = string
-  default     = "ghcr.io/diogo-pessoa/hello-you-api:sha256-42047f347648a6c487c284039f55183f286dd491d71a82f280129f73bd33bb0f"
+  default     = "ghcr.io/diogo-pessoa/hello-you-api:latest"
 }
 
 variable "container_port" {
@@ -63,6 +63,13 @@ variable "container_port" {
   type        = number
   default     = 5000
 }
+
+variable "health_check_path" {
+  description = "uri to check for app health"
+  type        = string
+  default     = "/health"
+}
+
 
 variable "desired_count" {
   description = "Desired number of tasks"
@@ -103,7 +110,7 @@ variable "enable_bastion" {
 variable "bastion_key_name" {
   description = "EC2 Key Pair name for bastion host"
   type        = string
-  default     = ""
+  default     = "hello-you-bastion"
 }
 
 variable "allowed_cidr_blocks" {

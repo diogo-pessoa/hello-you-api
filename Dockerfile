@@ -26,11 +26,10 @@ RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY app.py models.py routes.py validators.py config.py ./
+COPY app/ ./
 
-# Create directory for SQLite database and set permissions for UID 1001
-RUN mkdir -p /app/data && \
-    chown -R 1001:0 /app && \
+# Set permissions for UID 1001 (removed SQLite directory creation)
+RUN chown -R 1001:0 /app && \
     chmod 755 /app
 
 # Switch to the existing non-root user (UID 1001)
@@ -39,13 +38,8 @@ USER 1001
 # Expose port
 EXPOSE 5000
 
-# Health check
-HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD curl -f http://localhost:5000/health || exit 1
-
 # Set environment variables
 ENV FLASK_ENV=production
-ENV DATABASE_URL=sqlite:///data/helloworld.db
 ENV PORT=5000
 
 # Run with gunicorn for production

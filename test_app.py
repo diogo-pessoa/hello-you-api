@@ -3,7 +3,7 @@ from datetime import date, timedelta
 
 import pytest
 
-from app import app
+from app.app import app
 from models import db
 
 

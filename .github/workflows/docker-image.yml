@@ -4,7 +4,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main", "feature/buildimageaction" ]
+    branches: [ "main", "feature/terraform-ecs-fargate" ]
   pull_request:
     branches: [ "main" ]
 
