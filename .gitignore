@@ -211,3 +211,5 @@ Terraform/terraform.tfvars
 Terraform/.terraform/
 Terraform/*.tfstate
 Terraform/*.tfstate.backup
+.idea/
+.env.dev
