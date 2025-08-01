@@ -10,6 +10,14 @@ services:
       - DATABASE_URL=postgresql://postgres:password@db:5432/helloworld
       - LOG_LEVEL=DEBUG
       - SECRET_KEY=dev-secret-key
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    volumes:
+      - ./app:/app  # Optional: for live code reloading during development
     depends_on:
       db:
         condition: service_healthy

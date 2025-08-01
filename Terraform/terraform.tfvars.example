@@ -13,10 +13,6 @@ aws_region   = "eu-north-1"
 
 # Database credentials
 db_username = "hello_user"
-db_password = "your-secure-db-password-here"
-
-# Flask secret key
-flask_secret_key = "your-super-secret-flask-key-here"
 
 # Optional: ECS configuration
 # ecs_cluster_name = "my-custom-cluster-name"
