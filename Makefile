@@ -1,8 +1,7 @@
-.PHONY: help install test test-cov run clean docker-build docker-run dev-up dev-down terraform-init terraform-plan terraform-apply terraform-destroy lint security bandit pylint quality-check setup-mac check-prereqs setup-venv setup-env first-time-setup
+.PHONY: help install test test-cov run clean docker-build docker-run dev-up dev-down lint bandit pylint quality-check setup-venv setup-env db-init db-migrate db-upgrade db-downgrade first-time-setup
 
 help:
 	@echo "Hello World Birthday API - Development Commands"
-	@echo "  setup-mac         Install all Mac prerequisites (Homebrew, Python, Git, etc.)"
 	@echo "DEVELOPMENT:"
 	@echo "  setup-venv        Create and activate virtual environment"
 	@echo "  install           Install dependencies"
@@ -11,33 +10,21 @@ help:
 	@echo "  test              Run tests"
 	@echo "  test-cov          Run tests with coverage report"
 	@echo ""
-	@echo "  dev-up            Start development environment (Flask + PostgreSQL)"
+	@echo "  dev-up            Start development environment with Docker (Flask + PostgreSQL)"
 	@echo "  dev-down          Stop development environment"
 	@echo ""
-	@echo "  lint              Run all linting tools (pylint + flake8)"
-	@echo "  pylint            Run pylint code analysis"
-	@echo "  security          Run security analysis with bandit"
+	@echo "DATABASE MIGRATIONS:"
+	@echo "  db-init           Initialize migration folder"
+	@echo "  db-migrate        Generate migration script"
+	@echo "  db-upgrade        Apply migrations to database"
+	@echo "  db-downgrade      Revert last migration"
+	@echo ""
+	@echo "CODE QUALITY:"
+	@echo "  lint              Run pylint and flake8 checks"
 	@echo "  bandit            Run bandit SAST scan"
 	@echo "  quality-check     Run all quality checks (tests, coverage, lint, security)"
-	@echo "  clean             Clean up generated files"
-
-# Mac-specific setup commands
-setup-mac:
-	@echo "Setting up (Mac only) development environment"
-	@echo "Installing Homebrew (if not already installed)"
-	@/bin/bash -c "$$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || echo "Homebrew already installed or installation failed"
-	@echo "Installing Python 3.11"
-	@brew install python@3.11 || echo "Python 3.11 already installed"
-	@echo "Installing Git"
-	@brew install git || echo "Git already installed"
-	@echo "Installing curl"
-	@brew install curl || echo "curl already installed"
-	@echo "Installing Docker Desktop (if not installed)"
-	@brew install --cask docker || echo "Docker already installed"
-	@echo "Installing PostgreSQL client tools"
-	@brew install postgresql@15 || echo "PostgreSQL already installed"
 	@echo ""
-	@echo "Initial setup done."
+	@echo "  clean             Clean up generated files"
 
 setup-venv:
 	@echo "🐍 Setting up Python virtual environment..."
@@ -51,38 +38,25 @@ setup-venv:
 	@echo ""
 	@echo "To activate the virtual environment, run:"
 	@echo "  source .venv/bin/activate"
-	@echo ""
-	@echo "Note: The virtual environment will be automatically activated for other make commands"
 
 setup-env:
 	@echo "Setting up environment configuration."
 	@if [ ! -f ".env" ]; then \
-		if [ -f ".env.example" ]; then \
-			cp .env.example .env; \
-			echo "Created .env file from template"; \
-		else \
-			echo "Creating basic .env file..."; \
-			echo "FLASK_ENV=development" > .env; \
-			echo "SECRET_KEY=your-secret-key-here-$$(date +%s)" >> .env; \
-			echo "PORT=5000" >> .env; \
-			echo "DATABASE_URL=sqlite:///helloworld_dev.db" >> .env; \
-			echo "LOG_LEVEL=INFO" >> .env; \
-			echo "✅ Created basic .env file"; \
-		fi; \
+		echo "FLASK_ENV=development" > .env; \
+		echo "PORT=5000" >> .env; \
+		echo "DATABASE_URL=sqlite:///hello_you.db" >> .env; \
+		echo "✅ Created basic .env file"; \
 	else \
 		echo ".env file already exists"; \
 	fi
-	@echo ""
-	@echo "You can edit .env file to customize your settings"
 
-# Enhanced install command that ensures venv activation
 install:
 	@echo "📦 Installing dependencies..."
 	@( \
 		if [ -f ".venv/bin/activate" ]; then \
-			. .venv/bin/activate && pip install -r requirements-local.txt; \
+			. .venv/bin/activate && pip install -r requirements.txt; \
 		else \
-			pip3 install -r requirements-local.txt; \
+			pip3 install -r requirements.txt; \
 		fi \
 	)
 
@@ -98,42 +72,44 @@ test:
 test-cov:
 	@( \
 		if [ -f ".venv/bin/activate" ]; then \
-			. .venv/bin/activate && pytest tests/ --cov=app --cov-report=term-missing --cov-report=html -v; \
+			. .venv/bin/activate && pytest tests/ --cov=. --cov-report=term-missing --cov-report=html -v; \
 		else \
-			pytest tests/ --cov=app --cov-report=term-missing --cov-report=html -v; \
+			pytest tests/ --cov=. --cov-report=term-missing --cov-report=html -v; \
 		fi \
 	)
 
 run:
 	@echo "Starting local development server"
-	@echo "Server will be available at http://localhost:5000"
-	@echo "Press Ctrl+C to stop"
+	@echo "Server available at http://localhost:5000"
 	@( \
 		if [ -f ".venv/bin/activate" ]; then \
-			. .venv/bin/activate && cd app && python app.py; \
+			. .venv/bin/activate && python app.py; \
 		else \
-			cd app && python app.py; \
+			python app.py; \
 		fi \
 	)
 
-docker-dev-up:
-	@echo "Starting docker-compose-dev Hello-you-app (DB and flask)"
-	@echo "Server will be available at http://localhost:5000"
-	@echo "Press Ctrl+C to stop, make sure to run docker-dev-down to clean-up docker resources"
+docker-build:
+	docker build -t hello-you-api .
+
+docker-run:
+	docker run -p 5000:5000 hello-you-api
+
+dev-up:
+	@echo "Starting docker-compose Hello-you-app"
 	docker-compose -f docker-compose.dev.yml up --build
 
-docker-dev-down:
-	@echo "Removing docker-compose-dev resources"
-	docker-compose -f docker-compose.dev.yml down
+dev-down:
+	@echo "Stopping docker-compose environment"
+	docker-compose -f docker-compose.dev.yml down -v
 
-# Code quality commands with venv support
 lint: pylint
 	@echo "Running flake8"
 	@( \
 		if [ -f ".venv/bin/activate" ]; then \
-			. .venv/bin/activate && flake8 app/ --max-line-length=100 --exclude=__pycache__; \
+			. .venv/bin/activate && flake8 . --max-line-length=100 --exclude=__pycache__,.venv,migrations; \
 		else \
-			flake8 app/ --max-line-length=100 --exclude=__pycache__; \
+			flake8 . --max-line-length=100 --exclude=__pycache__,.venv,migrations; \
 		fi \
 	)
 
@@ -141,41 +117,70 @@ pylint:
 	@echo "Running pylint."
 	@( \
 		if [ -f ".venv/bin/activate" ]; then \
-			. .venv/bin/activate && pylint app/ --output-format=text --score=yes || true; \
+			. .venv/bin/activate && pylint *.py --output-format=text --score=yes || true; \
 		else \
-			pylint app/ --output-format=text --score=yes || true; \
+			pylint *.py --output-format=text --score=yes || true; \
 		fi \
 	)
-
-security: bandit
 
 bandit:
 	@echo "Running bandit security scan."
 	@( \
 		if [ -f ".venv/bin/activate" ]; then \
-			. .venv/bin/activate && bandit -r app/ -ll || true; \
+			. .venv/bin/activate && bandit -r . -ll || true; \
 		else \
-			bandit -r app/ -ll || true; \
+			bandit -r . -ll || true; \
+		fi \
+	)
+
+db-init:
+	@echo "Initializing migration folder..."
+	@( \
+		if [ -f ".venv/bin/activate" ]; then \
+			. .venv/bin/activate && flask db init || true; \
+		else \
+			flask db init || true; \
+		fi \
+	)
+
+db-migrate:
+	@echo "Creating migration..."
+	@( \
+		if [ -f ".venv/bin/activate" ]; then \
+			. .venv/bin/activate && flask db migrate -m "database changes"; \
+		else \
+			flask db migrate -m "database changes"; \
+		fi \
+	)
+
+db-upgrade:
+	@echo "Applying migrations..."
+	@( \
+		if [ -f ".venv/bin/activate" ]; then \
+			. .venv/bin/activate && flask db upgrade; \
+		else \
+			flask db upgrade; \
+		fi \
+	)
+
+db-downgrade:
+	@echo "Downgrading last migration..."
+	@( \
+		if [ -f ".venv/bin/activate" ]; then \
+			. .venv/bin/activate && flask db downgrade; \
+		else \
+			flask db downgrade; \
 		fi \
 	)
 
 clean:
 	@echo "Cleaning up generated files."
-	rm -rf __pycache__/
-	rm -rf app/__pycache__/
-	rm -rf .pytest_cache/
-	rm -rf htmlcov/
-	rm -rf .coverage
-	rm -f *.db
-	rm -f instance/*.db
-	rm -f pylint-report.txt
-	rm -f bandit-report.json
-	rm -f bandit-report.txt
+	rm -rf __pycache__/ .pytest_cache/ htmlcov/ .coverage *.db
 	find . -type d -name "__pycache__" -delete
 	find . -type f -name "*.pyc" -delete
-	docker rm -f helloworld-container 2>/dev/null || true
+	docker rm -f hello-you-api-container 2>/dev/null || true
 	docker-compose -f docker-compose.dev.yml down -v 2>/dev/null || true
 	@echo "Cleanup complete!"
 
-quality-check: test-cov lint security clean
+quality-check: test-cov lint bandit clean
 	@echo "All quality checks completed!"

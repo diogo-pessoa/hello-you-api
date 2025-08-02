@@ -1,8 +1,17 @@
-from flask_sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
+from database import db
+from datetime import date
+import re
 
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    username = db.Column(db.String(50), unique=True, nullable=False)
-    birthdate = db.Column(db.Date, nullable=False)
+    __tablename__ = 'users'
+
+    username = db.Column(db.String(50), primary_key=True)
+    date_of_birth = db.Column(db.Date, nullable=False)
+
+    @staticmethod
+    def validate_username(username):
+        return re.match(r'^[A-Za-z]+$', username) is not None
+
+    @staticmethod
+    def validate_date(date_of_birth):
+        return date_of_birth < date.today()
