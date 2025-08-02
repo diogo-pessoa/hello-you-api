@@ -28,3 +28,20 @@ provider "aws" {
     }
   }
 }
+
+
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 5.0"
+      configuration_aliases = [aws.primary_region]
+    }
+  }
+}
+
+# Primary region provider (for cross-region resources)
+provider "aws" {
+  alias  = "primary_region"
+  region = var.primary_region
+}

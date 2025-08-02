@@ -62,6 +62,12 @@ resource "aws_ecs_task_definition" "app" {
   container_definitions = jsonencode([{
     name  = var.app_name
     image = var.container_image
+    versionConsistency = "disabled" # disabling during development
+
+    # Add repository credentials for private GitHub Container Registry
+    repositoryCredentials = {
+      credentialsParameter = aws_secretsmanager_secret.github_registry_credentials.arn
+    }
 
     portMappings = [{
       containerPort = var.container_port
@@ -140,5 +146,86 @@ resource "aws_ecs_service" "app" {
 
   tags = {
     Name = "${var.app_name}-${var.environment}"
+  }
+}
+
+# ==========================================
+# ECS AUTO SCALING CONFIGURATION
+# ==========================================
+
+# ECS Auto Scaling Target
+resource "aws_appautoscaling_target" "ecs_target" {
+  max_capacity       = var.max_capacity
+  min_capacity       = var.min_capacity
+  resource_id        = "service/${aws_ecs_cluster.main.name}/${aws_ecs_service.app.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+
+  depends_on = [aws_ecs_service.app]
+
+  tags = {
+    Name = "${var.app_name}-${var.environment}-ecs-scaling-target"
+  }
+}
+
+# Target Tracking Scaling Policy - CPU Based
+resource "aws_appautoscaling_policy" "ecs_cpu_policy" {
+  name               = "${var.app_name}-${var.environment}-cpu-scaling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+    target_value       = 70.0
+    scale_in_cooldown  = 300  # 5 minutes
+    scale_out_cooldown = 300  # 5 minutes
+  }
+}
+
+# Target Tracking Scaling Policy - Memory Based
+resource "aws_appautoscaling_policy" "ecs_memory_policy" {
+  name               = "${var.app_name}-${var.environment}-memory-scaling"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.ecs_target.resource_id
+  scalable_dimension = aws_appautoscaling_target.ecs_target.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.ecs_target.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageMemoryUtilization"
+    }
+    target_value       = 80.0
+    scale_in_cooldown  = 300  # 5 minutes
+    scale_out_cooldown = 300  # 5 minutes
+  }
+}
+
+# ==========================================
+# CLOUDWATCH ALARMS FOR ECS MONITORING
+# ==========================================
+
+# ECS Service Health Alarm
+resource "aws_cloudwatch_metric_alarm" "ecs_service_cpu_high" {
+  alarm_name          = "${var.app_name}-${var.environment}-ecs-service-cpu-high"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = "3"
+  metric_name         = "CPUUtilization"
+  namespace           = "AWS/ECS"
+  period              = "300"
+  statistic           = "Average"
+  threshold           = "85"
+  alarm_description   = "ECS Service CPU utilization consistently high"
+
+  dimensions = {
+    ServiceName = aws_ecs_service.app.name
+    ClusterName = aws_ecs_cluster.main.name
+  }
+
+  tags = {
+    Name = "${var.app_name}-${var.environment}-ecs-cpu-alarm"
   }
 }
