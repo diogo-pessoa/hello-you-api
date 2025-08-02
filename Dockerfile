@@ -9,7 +9,10 @@ RUN dnf update -y && \
     dnf clean all && \
     rm -rf /var/cache/dnf
 
-COPY requirements.txt .
+COPY requirements.txt requirements-core.txt ./
+RUN pip install --no-cache-dir -r requirements.txt
+
+
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt

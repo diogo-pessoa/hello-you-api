@@ -1,6 +1,4 @@
-# Minimal core dependencies - works with SQLite
-Flask==2.3.3
-Flask-SQLAlchemy==3.0.5
-python-dotenv==1.0.0
-
-prometheus-flask-exporter==0.23.0
+Flask==3.0.3
+Flask-SQLAlchemy==3.1.1
+gunicorn==22.0.0
+psycopg2-binary==2.9.9
