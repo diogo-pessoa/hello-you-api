@@ -22,7 +22,6 @@ venv/
 *.db
 requirements-local.txt
 requirements-dev.txt
-requirements-core.txt
 
 # Testing
 test_*.py
