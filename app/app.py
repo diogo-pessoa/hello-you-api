@@ -1,10 +1,13 @@
 import os
+
 from flask import Flask
-from database import db
-from routes import bp
 from flask_migrate import Migrate
 
+from app.database import db
+from app.routes import bp
+
 migrate = Migrate()
+
 
 def create_app():
     app = Flask(__name__)
@@ -17,6 +20,7 @@ def create_app():
 
     app.register_blueprint(bp)
     return app
+
 
 if __name__ == '__main__':
     app = create_app()

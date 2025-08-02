@@ -83,11 +83,12 @@ run:
 	@echo "Server available at http://localhost:5000"
 	@( \
 		if [ -f ".venv/bin/activate" ]; then \
-			. .venv/bin/activate && python app.py; \
+			. .venv/bin/activate && python -m app.app; \
 		else \
-			python app.py; \
+			python -m app.app; \
 		fi \
 	)
+
 
 docker-build:
 	docker build -t hello-you-api .

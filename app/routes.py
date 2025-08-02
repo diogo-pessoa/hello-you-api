@@ -1,9 +1,10 @@
 from flask import Blueprint, request, jsonify, abort
-from database import db
-from models import User
+from app.database import db
+from app.models import User
 from datetime import datetime, date
 
 bp = Blueprint('routes', __name__)
+
 
 @bp.route('/hello/<username>', methods=['PUT'])
 def put_user(username):

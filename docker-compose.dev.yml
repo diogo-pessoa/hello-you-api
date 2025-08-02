@@ -11,18 +11,17 @@ services:
       - LOG_LEVEL=DEBUG
       - SECRET_KEY=dev-secret-key
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:5000/health" ]
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
       start_period: 40s
     volumes:
-      - ./app:/app  # Optional: for live code reloading during development
+      - ./app:/app/app     # ✅ mount your code into the app package folder
     depends_on:
       db:
         condition: service_healthy
-    # Don't mount source code in development mode - use the built image
-    command: ["python", "app.py"]
+    command: ["python", "-m", "app.app"]
     restart: unless-stopped
 
   db:

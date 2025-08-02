@@ -21,9 +21,13 @@ def init_metrics(app):
     metrics.info('app_info', 'Application info', version='1.0.0')
 
     # Initialize custom metrics
-    user_operations = Counter('user_operations_total', 'Total user operations', ['operation', 'status'])
-    request_duration = Histogram('request_duration_seconds', 'Request duration', ['method', 'endpoint'])
-    active_users = Gauge('active_users_total', 'Total number of users in database')
-    birthday_calculations = Counter('birthday_calculations_total', 'Total birthday calculations', ['days_until'])
+    user_operations = Counter('user_operations_total',
+                              'Total user operations', ['operation', 'status'])
+    request_duration = Histogram('request_duration_seconds',
+                                 'Request duration', ['method', 'endpoint'])
+    active_users = Gauge('active_users_total',
+                         'Total number of users in database')
+    birthday_calculations = Counter('birthday_calculations_total',
+                                    'Total birthday calculations', ['days_until'])
 
     return metrics
