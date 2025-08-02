@@ -42,3 +42,49 @@ resource "aws_ssm_parameter" "db_connection_string" {
     Name = "${var.app_name}-${var.environment}-database-url"
   }
 }
+
+#### GitHub Credentials setup
+
+resource "aws_secretsmanager_secret" "github_registry_credentials" {
+  name                    = "${var.app_name}-${var.environment}-github-registry-creds"
+  description             = "GitHub Container Registry credentials"
+  recovery_window_in_days = 7
+
+  tags = {
+    Name = "${var.app_name}-${var.environment}-github-registry-creds"
+  }
+}
+
+resource "aws_secretsmanager_secret_version" "github_registry_credentials" {
+  secret_id = aws_secretsmanager_secret.github_registry_credentials.id
+  secret_string = jsonencode({
+    username = var.github_username
+    password = var.github_pat_token
+  })
+}
+
+# 2. Update IAM role to access the secret
+resource "aws_iam_policy" "ecs_secrets_policy" {
+  name        = "${var.app_name}-${var.environment}-ecs-secrets-policy"
+  description = "Policy for ECS to access GitHub registry secrets"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "secretsmanager:GetSecretValue"
+        ]
+        Resource = [
+          aws_secretsmanager_secret.github_registry_credentials.arn
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ecs_task_execution_secrets" {
+  role       = aws_iam_role.ecs_task_execution_role.name
+  policy_arn = aws_iam_policy.ecs_secrets_policy.arn
+}

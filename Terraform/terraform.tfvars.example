@@ -23,3 +23,6 @@ db_username = "hello_user"
 # Optional: Container configuration
 # container_image = "ghcr.io/diogo-pessoa/hello-you-api:latest"
 # container_port = 5000
+
+# Github secrets
+github_pat_token=YOUR_GITHUB_PAT_TOKEN_HERE
