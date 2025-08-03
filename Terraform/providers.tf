@@ -29,8 +29,6 @@ provider "aws" {
   }
 }
 
-
-
 # Planned work for cross region deployment support
 # terraform {
 #   required_providers {
