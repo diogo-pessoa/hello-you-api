@@ -35,12 +35,10 @@ help:
 	@echo ""
 	@echo "  clean             Remove temporary and build files"
 
-# -----------------------------
 # Environment Setup
-# -----------------------------
 
 setup-venv:
-	@echo "🐍 Setting up Python virtual environment..."
+	@echo "Setting up Python virtual environment..."
 	@if [ ! -d ".venv" ]; then \
 		python3 -m venv .venv && echo "Virtual environment created!"; \
 	else \
@@ -54,30 +52,26 @@ setup-env:
 		echo "FLASK_ENV=development" > .env; \
 		echo "PORT=5000" >> .env; \
 		echo "DATABASE_URL=sqlite:///hello_you.db" >> .env; \
-		echo "✅ Created basic .env file"; \
+		echo "Created basic .env file"; \
 	else \
 		echo ".env already exists."; \
 	fi
 
 # -----------------------------
-# Install Commands
-# -----------------------------
 
 install-local:
-	@echo "📦 Installing local development dependencies..."
+	@echo "Installing local development dependencies..."
 	@. .venv/bin/activate && pip install -r requirements-local.txt
 
 install-dev:
-	@echo "📦 Installing CI/CD development dependencies..."
+	@echo "Installing CI/CD development dependencies..."
 	@. .venv/bin/activate && pip install -r requirements-dev.txt
 
 install-prod:
-	@echo "📦 Installing production dependencies..."
+	@echo "Installing production dependencies..."
 	@pip install --no-cache-dir -r requirements.txt
 
-# -----------------------------
 # Run & Test
-# -----------------------------
 
 run:
 	@echo "Starting local development server (SQLite)"
@@ -91,7 +85,6 @@ test-cov:
 
 # -----------------------------
 # Docker Commands
-# -----------------------------
 
 docker-build:
 	docker build -t hello-you-api .
@@ -105,9 +98,7 @@ dev-up:
 dev-down:
 	docker-compose -f docker-compose.dev.yml down -v
 
-# -----------------------------
 # Database Migration Commands
-# -----------------------------
 
 db-init:
 	@. .venv/bin/activate && flask db init || true
@@ -121,9 +112,9 @@ db-upgrade:
 db-downgrade:
 	@. .venv/bin/activate && flask db downgrade
 
-# -----------------------------
+# --------------------------
+
 # Code Quality & Security
-# -----------------------------
 
 lint: pylint
 	@. .venv/bin/activate && flake8 app/ --max-line-length=100 --exclude=__pycache__,.venv,migrations
@@ -135,14 +126,12 @@ bandit:
 	@. .venv/bin/activate && bandit -r app/ -ll || true
 
 quality-check: test-cov lint bandit
-	@echo "✅ All quality checks passed!"
+	@echo "All quality checks passed!"
 
-# -----------------------------
 # Clean
-# -----------------------------
 
 clean:
-	@echo "🧹 Cleaning project..."
+	@echo "Clean-up in progress"
 	rm -rf __pycache__/ .pytest_cache/ htmlcov/ .coverage *.db
 	find . -type d -name "__pycache__" -delete
 	find . -type f -name "*.pyc" -delete
