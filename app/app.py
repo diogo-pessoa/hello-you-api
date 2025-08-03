@@ -1,7 +1,9 @@
+# pylint: disable=unused-argument,invalid-envvar-default,redefined-outer-name
 import os
 
-from flask import Flask
+from flask import Flask, jsonify
 from flask_migrate import Migrate
+from werkzeug.exceptions import HTTPException
 
 from app.database import db
 from app.routes import bp
@@ -19,6 +21,22 @@ def create_app():
     migrate.init_app(app, db)
 
     app.register_blueprint(bp)
+
+    # --- Global Error Handlers ---
+    @app.errorhandler(404)
+    def handle_not_found(e):
+        return jsonify({}), 404
+
+    @app.errorhandler(HTTPException)
+    def handle_http_exception(e):
+        """Convert all HTTP errors to JSON."""
+        return jsonify({"error": e.description, "code": e.code}), e.code
+
+    @app.errorhandler(Exception)
+    def handle_generic_exception(e):
+        """Catch unexpected errors."""
+        return jsonify({"error": "An unexpected error occurred", "code": 500}), 500
+
     return app
 
 
