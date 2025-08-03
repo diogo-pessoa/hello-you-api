@@ -1,4 +1,3 @@
-# ALB Security Group
 resource "aws_security_group" "alb" {
   name_prefix = "${var.app_name}-${var.environment}-alb-"
   vpc_id      = aws_vpc.main.id
@@ -33,7 +32,6 @@ resource "aws_security_group" "alb" {
   }
 }
 
-# Application Load Balancer
 resource "aws_lb" "main" {
   name               = "${var.app_name}-${var.environment}-alb"
   internal           = false
@@ -48,7 +46,6 @@ resource "aws_lb" "main" {
   }
 }
 
-# ALB Target Group
 resource "aws_lb_target_group" "app" {
   name        = "${var.app_name}-${var.environment}-tg"
   port        = var.container_port
@@ -73,7 +70,6 @@ resource "aws_lb_target_group" "app" {
   }
 }
 
-# ALB Listener
 resource "aws_lb_listener" "app" {
   load_balancer_arn = aws_lb.main.arn
   port              = "80"
