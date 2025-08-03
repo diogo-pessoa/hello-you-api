@@ -1,4 +1,3 @@
- # Bastion Security Group
 resource "aws_security_group" "bastion" {
   count       = var.enable_bastion ? 1 : 0
   name_prefix = "${var.app_name}-${var.environment}-bastion-"
@@ -26,7 +25,6 @@ resource "aws_security_group" "bastion" {
   }
 }
 
-# Bastion Host Instance
 resource "aws_instance" "bastion" {
   count                  = var.enable_bastion ? 1 : 0
   ami                    = data.aws_ami.amazon_linux[0].id

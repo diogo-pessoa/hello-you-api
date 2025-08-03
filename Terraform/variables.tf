@@ -38,7 +38,18 @@ variable "db_password" {
   description = "Database password"
   type        = string
   sensitive   = true
+
+  validation {
+    condition = (
+      length(var.db_password) >= 8 &&
+      length(var.db_password) <= 41 &&
+      can(regex("^[ -~]+$", var.db_password)) && # printable ASCII
+      !can(regex("[/@\" ]", var.db_password))    # forbidden characters
+    )
+    error_message = "Database password must be 8–41 printable ASCII characters and cannot include '/', '@', '\"', or spaces."
+  }
 }
+
 
 variable "flask_secret_key" {
   description = "Flask secret key"
@@ -119,7 +130,6 @@ variable "allowed_cidr_blocks" {
   default     = ["0.0.0.0/0"]  # Restrict this to your IP for security
 }
 
-# Github registry credentials:
 
 variable "github_username" {
   description = "GitHub username for container registry access"
@@ -134,9 +144,6 @@ variable "github_pat_token" {
   default     = null
 }
 
-# ==========================================
-# ECS AUTO SCALING VARIABLES
-# ==========================================
 
 variable "min_capacity" {
   description = "Minimum number of ECS tasks"
@@ -149,20 +156,29 @@ variable "min_capacity" {
   }
 }
 
+locals {
+  ecs_capacity_valid = var.max_capacity >= var.min_capacity
+}
+
+resource "null_resource" "validate_capacity" {
+  count = local.ecs_capacity_valid ? 0 : 1
+
+  provisioner "local-exec" {
+    command = "echo 'ERROR: max_capacity must be >= min_capacity' && exit 1"
+  }
+}
+
+
 variable "max_capacity" {
   description = "Maximum number of ECS tasks"
   type        = number
   default     = 6
 
   validation {
-    condition     = var.max_capacity >= var.min_capacity
-    error_message = "Maximum capacity must be greater than or equal to minimum capacity."
+    condition     = var.max_capacity >= 1
+    error_message = "Maximum capacity must be greater than or equal to 1."
   }
 }
-
-# ==========================================
-# RDS DISASTER RECOVERY VARIABLES
-# ==========================================
 
 variable "db_replica_instance_class" {
   description = "Instance class for RDS read replica"
@@ -185,49 +201,3 @@ variable "replica_availability_zone" {
   default     = null
 }
 
-
-# ==========================================
-# ADDITIONAL VARIABLES FOR CROSS-REGION
-# ==========================================
-
-variable "enable_cross_region_replica" {
-  description = "Enable cross-region read replica for disaster recovery"
-  type        = bool
-  default     = false
-}
-
-variable "is_primary_region" {
-  description = "Whether this is the primary region deployment"
-  type        = bool
-  default     = true
-}
-
-variable "primary_region" {
-  description = "Primary AWS region"
-  type        = string
-  default     = "us-east-1"
-}
-
-variable "primary_db_identifier" {
-  description = "Primary database identifier for cross-region replica"
-  type        = string
-  default     = ""
-}
-
-variable "db_cross_region_replica_instance_class" {
-  description = "Instance class for cross-region RDS read replica"
-  type        = string
-  default     = "db.t3.small"
-}
-
-variable "enable_route53_failover" {
-  description = "Enable Route53 DNS failover configuration"
-  type        = bool
-  default     = false
-}
-
-variable "domain_name" {
-  description = "Domain name for Route53 hosted zone"
-  type        = string
-  default     = ""
-}
