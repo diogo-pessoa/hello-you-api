@@ -1,9 +1,7 @@
 from prometheus_flask_exporter import PrometheusMetrics, Counter, Histogram, Gauge
 
-# Global metrics instance
 metrics = None
-
-# Define custom metrics - these will be registered when init_metrics is called
+# Define custom metrics - registered when init_metrics
 user_operations = None
 request_duration = None
 active_users = None

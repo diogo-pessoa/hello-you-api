@@ -1,7 +1,8 @@
 
 resource "random_password" "db_password" {
-  length  = 32
-  special = true
+  length           = 32
+  special          = true
+  override_special = "_%#=+,.^~-" # Allowed RDS special characters
 }
 
 resource "random_password" "flask_secret_key" {
@@ -32,8 +33,7 @@ resource "aws_ssm_parameter" "flask_secret_key" {
 resource "aws_ssm_parameter" "db_connection_string" {
   name  = "/${var.app_name}/${var.environment}/database-url"
   type  = "SecureString"
-  value = "postgresql://${var.db_username}:${random_password.db_password.result}@${aws_db_instance.main.endpoint}/helloworld"
-
+  value = "postgresql://${var.db_username}:${urlencode(random_password.db_password.result)}@${aws_db_instance.main.endpoint}/helloworld"
   tags = {
     Name = "${var.app_name}-${var.environment}-database-url"
   }
@@ -51,13 +51,14 @@ resource "aws_secretsmanager_secret" "github_registry_credentials" {
   }
 }
 
-resource "aws_secretsmanager_secret_version" "github_registry_credentials" {
-  secret_id = aws_secretsmanager_secret.github_registry_credentials.id
-  secret_string = jsonencode({
-    username = var.github_username
-    password = var.github_pat_token
-  })
-}
+# TODO -  disabling for now. I've restored the secret and re-imported. TF still tries to re-created will Review in a separate PR
+# resource "aws_secretsmanager_secret_version" "github_registry_credentials" {
+#   secret_id = aws_secretsmanager_secret.github_registry_credentials.id
+#   secret_string = jsonencode({
+#     username = var.github_username
+#     password = var.github_pat_token
+#   })
+# }
 
 # 2. Update IAM role to access the secret
 resource "aws_iam_policy" "ecs_secrets_policy" {
