@@ -82,8 +82,7 @@ resource "aws_db_instance" "main" {
 
   db_name  = "helloworld"
   username = var.db_username
-  # password = random_password.db_password.result
-  password = var.db_password
+  password = random_password.db_password.result
 
   vpc_security_group_ids = [aws_security_group.rds.id]
   db_subnet_group_name   = aws_db_subnet_group.main.name
@@ -125,7 +124,7 @@ resource "aws_db_instance" "read_replica" {
   skip_final_snapshot        = true
   # Place in different AZ for DR
   availability_zone = var.replica_availability_zone
-
+  storage_encrypted = true
   vpc_security_group_ids = [aws_security_group.rds.id]
 
   monitoring_interval = 60
