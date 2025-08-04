@@ -12,17 +12,24 @@ def client():
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///:memory:'
     with app.app_context():
+        db.drop_all()
         db.create_all()
         yield app.test_client()
 
 
+
 def test_put_and_get_user_success(client):
     response = client.put('/hello/john', json={"dateOfBirth": "1990-05-10"})
-    assert response.status_code == 204
+    assert response.status_code == 201  # Changed to 201 for new user creation
 
     response = client.get('/hello/john')
     assert response.status_code == 200
     assert "Hello, john!" in response.json["message"]
+
+
+def test_put_returns_201_on_new_user(client):
+    response = client.put('/hello/newuser', json={"dateOfBirth": "1990-05-10"})
+    assert response.status_code == 201
 
 
 @pytest.mark.parametrize("username", ["john123", "john_doe", "", "!@#"])
@@ -75,6 +82,7 @@ def test_missing_endpoint_returns_empty_json(client):
     response = client.get('/nonexistent-endpoint')
     assert response.status_code == 404
     assert response.json == {}
+
 
 def test_get_happy_birthday_message(client):
     today = datetime.today()
