@@ -1,6 +1,5 @@
 # pylint: disable=unused-argument,invalid-envvar-default,redefined-outer-name
 import os
-
 from flask import Flask, jsonify
 from flask_migrate import Migrate
 from werkzeug.exceptions import HTTPException
@@ -9,7 +8,6 @@ from app.database import db
 from app.routes import bp
 
 migrate = Migrate()
-
 
 def create_app():
     app = Flask(__name__)
@@ -29,19 +27,14 @@ def create_app():
 
     @app.errorhandler(HTTPException)
     def handle_http_exception(e):
-        """Convert all HTTP errors to JSON."""
         return jsonify({"error": e.description, "code": e.code}), e.code
 
     @app.errorhandler(Exception)
     def handle_generic_exception(e):
-        """Catch unexpected errors."""
         return jsonify({"error": "An unexpected error occurred", "code": 500}), 500
 
     return app
 
-
 if __name__ == '__main__':
     app = create_app()
-    with app.app_context():
-        db.create_all()
     app.run(host='0.0.0.0', port=int(os.getenv('PORT', 5000)))
