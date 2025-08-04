@@ -1,6 +1,8 @@
 # Database Schema
 
-Simple database design for the Hello World Birthday API.
+Simple database design for the Hello World Birthday API.  
+
+see: [migrations](../migrations) for DB versions. 
 
 ## Users Table
 
@@ -12,6 +14,17 @@ Simple database design for the Hello World Birthday API.
 
 ## SQL Schema
 
+To initialize DB.
+
+```bash 
+# DATABASE MIGRATIONS
+	make db-init #Initialize migration folder
+	make db-migrate #Create a new migration
+	make makedb-upgrade
+	make db-downgrade # Roll back last migration
+```
+reference: [Flask migrate](https://flask-migrate.readthedocs.io/en/latest/)
+
 ```sql
 CREATE TABLE users (
     id INTEGER PRIMARY KEY,
@@ -20,8 +33,9 @@ CREATE TABLE users (
 );
 ```
 
-## SQLAlchemy Model
+## SQLAlchemy (ORM) Model
 
+[SQLAlchemy Docs](https://www.sqlalchemy.org/)
 ```python
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -34,3 +48,4 @@ class User(db.Model):
 - **Username**: Only letters (a-z, A-Z), must be unique
 - **Birth Date**: Must be in the past (before today)
 - **Format**: Date format is YYYY-MM-DD
+
