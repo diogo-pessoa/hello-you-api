@@ -1,5 +1,9 @@
 # Hello World Birthday API
 
+[![Build, Push, and Deploy to ECS](https://github.com/diogo-pessoa/hello-you-api/actions/workflows/docker-image.yml/badge.svg)](https://github.com/diogo-pessoa/hello-you-api/actions/workflows/docker-image.yml)
+[![CI Pipeline](https://github.com/diogo-pessoa/hello-you-api/actions/workflows/ci.yml/badge.svg)](https://github.com/diogo-pessoa/hello-you-api/actions/workflows/ci.yml)
+[![Dependabot Updates](https://github.com/diogo-pessoa/hello-you-api/actions/workflows/dependabot/dependabot-updates/badge.svg)](https://github.com/diogo-pessoa/hello-you-api/actions/workflows/dependabot/dependabot-updates)
+
 A simple Flask-based REST API that manages user birthdays and provides personalized birthday messages.
 
 ## Description
