@@ -1,6 +1,7 @@
 from datetime import date
 
 from flask import Blueprint, jsonify, abort, request, current_app
+from sqlalchemy.exc import SQLAlchemyError
 
 from app.database import db
 from app.models import User
@@ -48,7 +49,7 @@ def put_user(username):
 
         db.session.commit()
         return '', status_code, headers
-    except Exception as e:
+    except SQLAlchemyError as e:
         db.session.rollback()
         current_app.logger.error("Failed to save user %s: %s", username, str(e))
         abort(500, "Internal server error")
@@ -59,7 +60,7 @@ def get_user(username):
     current_app.logger.info("Received GET request for user: %s", username)
     try:
         user = User.query.filter_by(username=username).first()
-    except Exception as e:
+    except SQLAlchemyError as e:
         current_app.logger.error("Database error fetching user %s: %s", username, str(e))
         abort(500, "Internal server error")
 
@@ -83,7 +84,6 @@ def get_user(username):
     return jsonify({"message": message})
 
 
-
 @bp.route('/users', methods=['GET'])
 def get_all_users():
     current_app.logger.info("Received GET request for all users")
@@ -95,7 +95,7 @@ def get_all_users():
         ]
         current_app.logger.info("Fetched %d users", len(result))
         return jsonify(result), 200
-    except Exception as e:
+    except SQLAlchemyError as e:
         current_app.logger.error("Error fetching all users: %s", str(e))
         abort(500, "Internal server error")
 
@@ -109,6 +109,6 @@ def health():
         db.session.query(User).first()
         current_app.logger.debug("Database connection and 'users' table are healthy")
         return jsonify({"status": "healthy"}), 200
-    except Exception as e:
+    except SQLAlchemyError as e:
         current_app.logger.error("Database health check failed: %s", str(e))
         return jsonify({"status": "unhealthy"}), 500
