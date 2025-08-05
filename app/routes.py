@@ -104,4 +104,11 @@ def get_all_users():
 @bp.route('/', methods=['GET'])
 def health():
     current_app.logger.debug("Health check endpoint hit")
-    return jsonify({"status": "healthy"}), 200
+    try:
+        # Perform a lightweight query to validate DB connection and table existence
+        db.session.query(User).first()
+        current_app.logger.debug("Database connection and 'users' table are healthy")
+        return jsonify({"status": "healthy"}), 200
+    except Exception as e:
+        current_app.logger.error("Database health check failed: %s", str(e))
+        return jsonify({"status": "unhealthy"}), 500
