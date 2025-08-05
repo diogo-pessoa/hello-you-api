@@ -17,10 +17,33 @@ This application provides HTTP-based APIs to:
 
 ### API Endpoints
 
+Live API: http://hello-you-api-dev-alb-2030191343.eu-central-1.elb.amazonaws.com
+
 - **PUT** `/hello/<username>` - Save/update user's date of birth
+```bash 
+curl -X PUT http://hello-you-api-dev-alb-2030191343.eu-central-1.elb.amazonaws.com/hello/Phaedrus \
+-H "Content-Type: application/json" \
+  -d '{"dateOfBirth": "1928-09-06"}'
+````
 - **GET** `/hello/<username>` - Get personalized birthday message
+```bash 
+curl http://hello-you-api-dev-alb-2030191343.eu-central-1.elb.amazonaws.com/hello/Phaedrus
+{"message":"Hello, robert! Your birthday is in 32 day(s)"}
+
+````
 - **GET** `/health` - Health check endpoint
--
+```bash 
+curl http://hello-you-api-dev-alb-2030191343.eu-central-1.elb.amazonaws.com/health
+{"status":"healthy"}
+````
+
+- **GET** `/users`
+
+```bash
+
+curl -XGET http://hello-you-api-dev-alb-2030191343.eu-central-1.elb.amazonaws.com/users
+[{"date_of_birth":"1928-09-06","username":"Phaedrus"},{"date_of_birth":"1928-09-06","username":"robert"}]
+```
 
 ### Database
 
